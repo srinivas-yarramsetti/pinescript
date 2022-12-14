@@ -1,0 +1,118 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Srinivas Yarramsetti - srinivasitcrre6@gmail.com
+
+//@version=5
+indicator("Table_1m_15m_1HR", overlay = true)
+LTPTIME = input.timeframe('1',title = "LTP Time", options = ['1', '2', '3', '5', '10', '15', '30', '60', '240', 'D', 'W', 'M'], tooltip = 'Choose different timeframe for LTP')
+ticker_1 = input.symbol("NIFTY", "Ticker 1")
+ticker_2 = input.symbol("BANKNIFTY", "Ticker 2")
+ticker_3 = input.symbol("TCS", "Ticker 3")
+ticker_4 = input.symbol("INFY", "Ticker 4")
+ticker_5 = input.symbol("RELIANCE", "Ticker 5")
+ticker_6 = input.symbol("HDFC", "Ticker 6")
+ticker_7 = input.symbol("BAJFINANCE", "Ticker 7")
+//ticker_8 = input.symbol("ITC", "Ticker 8")
+//ticker_9 = input.symbol("TATAELXSI", "Ticker 9")
+
+
+FindPOS(sym) => str.pos(sym,':')
+
+//Get close price
+Sec_Price(tick, ltp, openorclose) => math.round(request.security(tick, ltp, openorclose), 2)
+
+
+//Get close price
+Sec_Price_Close(tick) => math.round(request.security(tick, LTPTIME, close), 2)
+
+//Get open price
+//Sec_Price_Open(tick) => request.security(tick, LTPTIME, open)
+
+//Diff in price of request.security
+Sec_Price_Change(tick) => request.security(tick, LTPTIME, close - open)
+
+//Current price of the candle at 1 min - Prior day close
+Day_Change(tick) => math.round(request.security(tick, '1', close) - request.security(tick, 'D', close[1]), 2) 
+
+//Current price of the candle at 1 min - Prior day close
+Day_Change_Percent(tick) => math.round(((request.security(tick, '1', close) - request.security(tick, 'D', close[1]))/(request.security(tick, 'D', close[1])) * 100), 2)
+
+//Current price of the candle at 1 min - Prior day close 15%
+Day_Change_15_Percent(tick) => math.round(((request.security(tick, '15', close) - request.security(tick, 'D', close[1]))/(request.security(tick, 'D', close[1])) * 100), 2)
+
+//Current price of the candle at 1 min - Prior day close 15%
+Day_Change_1HR_Percent(tick) => math.round(((request.security(tick, '60', close) - request.security(tick, 'D', close[1]))/(request.security(tick, 'D', close[1])) * 100), 2)
+
+var testTable = table.new(position = position.top_right, columns = 6, rows = 10, bgcolor = color.rgb(36, 150, 202), border_width = 1, border_color=color.white)
+
+if barstate.islast
+    //First Column
+    table.cell(table_id = testTable, column = 0, row = 0, text = "Symbol", width = 6)
+    table.cell(table_id = testTable, column = 0, row = 1, text = str.substring(ticker_1, FindPOS(ticker_1)+1))
+    table.cell(table_id = testTable, column = 0, row = 2, text = str.substring(ticker_2, FindPOS(ticker_2)+1))
+    table.cell(table_id = testTable, column = 0, row = 3, text = str.substring(ticker_3, FindPOS(ticker_3)+1))
+    table.cell(table_id = testTable, column = 0, row = 4, text = str.substring(ticker_4, FindPOS(ticker_4)+1))
+    table.cell(table_id = testTable, column = 0, row = 5, text = str.substring(ticker_5, FindPOS(ticker_5)+1))
+    table.cell(table_id = testTable, column = 0, row = 6, text = str.substring(ticker_6, FindPOS(ticker_6)+1))
+    table.cell(table_id = testTable, column = 0, row = 7, text = str.substring(ticker_7, FindPOS(ticker_7)+1))
+    //table.cell(table_id = testTable, column = 0, row = 8, text = str.substring(ticker_8, FindPOS(ticker_8)+1))
+    //table.cell(table_id = testTable, column = 0, row = 9, text = str.substring(ticker_9, FindPOS(ticker_9)+1))
+
+    //Second Column
+    table.cell(table_id = testTable, column = 1, row = 0, text = "LTP: "+ str.tostring(LTPTIME), width = 5) 
+    table.cell(table_id = testTable, column = 1, row = 1, text = str.tostring(Sec_Price_Close(ticker_1)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    table.cell(table_id = testTable, column = 1, row = 2, text = str.tostring(Sec_Price_Close(ticker_2)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    table.cell(table_id = testTable, column = 1, row = 3, text = str.tostring(Sec_Price_Close(ticker_3)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    table.cell(table_id = testTable, column = 1, row = 4, text = str.tostring(Sec_Price_Close(ticker_4)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    table.cell(table_id = testTable, column = 1, row = 5, text = str.tostring(Sec_Price_Close(ticker_5)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    table.cell(table_id = testTable, column = 1, row = 6, text = str.tostring(Sec_Price_Close(ticker_6)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    table.cell(table_id = testTable, column = 1, row = 7, text = str.tostring(Sec_Price_Close(ticker_7)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    //table.cell(table_id = testTable, column = 1, row = 8, text = str.tostring(Sec_Price_Close(ticker_8)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+    //table.cell(table_id = testTable, column = 1, row = 9, text = str.tostring(Sec_Price_Close(ticker_9)), bgcolor = Sec_Price_Change(ticker_1) > 0?color.green:color.red) 
+
+    table.cell(table_id = testTable, column = 2, row = 1, text = str.tostring(Day_Change(ticker_1)), bgcolor = Day_Change(ticker_1) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 2, row = 2, text = str.tostring(Day_Change(ticker_2)), bgcolor = Day_Change(ticker_2) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 2, row = 3, text = str.tostring(Day_Change(ticker_3)), bgcolor = Day_Change(ticker_3) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 2, row = 4, text = str.tostring(Day_Change(ticker_4)), bgcolor = Day_Change(ticker_4) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 2, row = 5, text = str.tostring(Day_Change(ticker_5)), bgcolor = Day_Change(ticker_5) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 2, row = 6, text = str.tostring(Day_Change(ticker_6)), bgcolor = Day_Change(ticker_6) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 2, row = 7, text = str.tostring(Day_Change(ticker_7)), bgcolor = Day_Change(ticker_7) >= 0?color.green:color.red)
+    //table.cell(table_id = testTable, column = 2, row = 8, text = str.tostring(Day_Change(ticker_8)), bgcolor = Day_Change(ticker_8) >= 0?color.green:color.red)    
+    //table.cell(table_id = testTable, column = 2, row = 9, text = str.tostring(Day_Change(ticker_9)), bgcolor = Day_Change(ticker_9) >= 0?color.green:color.red)
+    
+    table.cell(table_id = testTable, column = 3, row = 1, text = str.tostring(Day_Change_Percent(ticker_1)), bgcolor = Day_Change_Percent(ticker_1) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 3, row = 2, text = str.tostring(Day_Change_Percent(ticker_2)), bgcolor = Day_Change_Percent(ticker_2) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 3, row = 3, text = str.tostring(Day_Change_Percent(ticker_3)), bgcolor = Day_Change_Percent(ticker_3) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 3, row = 4, text = str.tostring(Day_Change_Percent(ticker_4)), bgcolor = Day_Change_Percent(ticker_4) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 3, row = 5, text = str.tostring(Day_Change_Percent(ticker_5)), bgcolor = Day_Change_Percent(ticker_5) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 3, row = 6, text = str.tostring(Day_Change_Percent(ticker_6)), bgcolor = Day_Change_Percent(ticker_6) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 3, row = 7, text = str.tostring(Day_Change_Percent(ticker_7)), bgcolor = Day_Change_Percent(ticker_7) >= 0?color.green:color.red)
+    //table.cell(table_id = testTable, column = 3, row = 8, text = str.tostring(Day_Change_Percent(ticker_8)), bgcolor = Day_Change_Percent(ticker_8) >= 0?color.green:color.red) 
+    //table.cell(table_id = testTable, column = 3, row = 9, text = str.tostring(Day_Change_Percent(ticker_9)), bgcolor = Day_Change_Percent(ticker_9) >= 0?color.green:color.red)
+
+    table.cell(table_id = testTable, column = 4, row = 1, text = str.tostring(Day_Change_15_Percent(ticker_1)), bgcolor = Day_Change_15_Percent(ticker_1) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 4, row = 2, text = str.tostring(Day_Change_15_Percent(ticker_2)), bgcolor = Day_Change_15_Percent(ticker_2) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 4, row = 3, text = str.tostring(Day_Change_15_Percent(ticker_3)), bgcolor = Day_Change_15_Percent(ticker_3) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 4, row = 4, text = str.tostring(Day_Change_15_Percent(ticker_4)), bgcolor = Day_Change_15_Percent(ticker_4) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 4, row = 5, text = str.tostring(Day_Change_15_Percent(ticker_5)), bgcolor = Day_Change_15_Percent(ticker_5) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 4, row = 6, text = str.tostring(Day_Change_15_Percent(ticker_6)), bgcolor = Day_Change_15_Percent(ticker_6) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 4, row = 7, text = str.tostring(Day_Change_15_Percent(ticker_7)), bgcolor = Day_Change_15_Percent(ticker_7) >= 0?color.green:color.red)
+    //table.cell(table_id = testTable, column = 4, row = 8, text = str.tostring(Day_Change_15_Percent(ticker_8)), bgcolor = Day_Change_15_Percent(ticker_8) >= 0?color.green:color.red) 
+    //table.cell(table_id = testTable, column = 4, row = 9, text = str.tostring(Day_Change_15_Percent(ticker_9)), bgcolor = Day_Change_15_Percent(ticker_9) >= 0?color.green:color.red)   
+
+    table.cell(table_id = testTable, column = 5, row = 1, text = str.tostring(Day_Change_1HR_Percent(ticker_1)), bgcolor = Day_Change_1HR_Percent(ticker_1) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 5, row = 2, text = str.tostring(Day_Change_1HR_Percent(ticker_2)), bgcolor = Day_Change_1HR_Percent(ticker_2) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 5, row = 3, text = str.tostring(Day_Change_1HR_Percent(ticker_3)), bgcolor = Day_Change_1HR_Percent(ticker_3) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 5, row = 4, text = str.tostring(Day_Change_1HR_Percent(ticker_4)), bgcolor = Day_Change_1HR_Percent(ticker_4) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 5, row = 5, text = str.tostring(Day_Change_1HR_Percent(ticker_5)), bgcolor = Day_Change_1HR_Percent(ticker_5) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 5, row = 6, text = str.tostring(Day_Change_1HR_Percent(ticker_6)), bgcolor = Day_Change_1HR_Percent(ticker_6) >= 0?color.green:color.red)
+    table.cell(table_id = testTable, column = 5, row = 7, text = str.tostring(Day_Change_1HR_Percent(ticker_7)), bgcolor = Day_Change_1HR_Percent(ticker_7) >= 0?color.green:color.red)
+    //table.cell(table_id = testTable, column = 5, row = 8, text = str.tostring(Day_Change_1HR_Percent(ticker_8)), bgcolor = Day_Change_1HR_Percent(ticker_8) >= 0?color.green:color.red) 
+    //table.cell(table_id = testTable, column = 5, row = 9, text = str.tostring(Day_Change_1HR_Percent(ticker_9)), bgcolor = Day_Change_1HR_Percent(ticker_9) >= 0?color.green:color.red)  
+
+    table.cell(table_id = testTable, column = 2, row = 0, text = "Change", width = 5)
+    table.cell(table_id = testTable, column = 3, row = 0, text = "Change %", width = 5)
+    table.cell(table_id = testTable, column = 4, row = 0, text = "15m Chg%", width = 5)
+    table.cell(table_id = testTable, column = 5, row = 0, text = "1hr Chg%", width = 5)
+    
+
+
