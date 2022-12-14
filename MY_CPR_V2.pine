@@ -1,0 +1,173 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Srini_vas
+
+//@version=4
+study("My CPR2", shorttitle="My_CPR V2.0", overlay=true)
+//cenral pivot range
+pivot = (high + low + close) /3 //Central Povit
+BC = (high + low) / 2 //Below Central povit
+TC = (pivot - BC) + pivot //Top Central povot
+
+//3  support levels
+S1 = (pivot * 2) - high
+S2 = pivot - (high - low)
+S3 = low - 2 * (high - pivot)
+
+//3  resistance levels
+R1 = (pivot * 2) - low
+R2 = pivot + (high - low)
+R3 = high + 2 * (pivot-low)
+
+isToday = false
+
+//Checkbox inputs
+CPRPlot = input(title = "Plot CPR?", type=input.bool, defval=false)
+DayS1R1 = input(title = "Plot Daiy S1/R1?", type=input.bool, defval=false)
+DayS2R2 = input(title = "Plot Daiy S2/R2?", type=input.bool, defval=false)
+DayS3R3 = input(title = "Plot Daiy S3/R3?", type=input.bool, defval=false)
+WeeklyPivotInclude = input(title = "Plot Weekly Pivot?", type=input.bool, defval=false)
+WeeklyS1R1 = input(title = "Plot weekly S1/R1?", type=input.bool, defval=false)
+WeeklyS2R2 = input(title = "Plot weekly S2/R2?", type=input.bool, defval=false)
+WeeklyS3R3 = input(title = "Plot weekly S3/R3?", type=input.bool, defval=false)
+MonthlyPivotInclude = input(title = "Plot Montly Pivot?", type=input.bool, defval=false)
+MonthlyS1R1 = input(title = "Plot Monthly S1/R1?", type=input.bool, defval=false)
+MonthlyS2R2 = input(title = "Plot Monthly S2/R2?", type=input.bool, defval=false)
+MonthlyS3R3 = input(title = "Plot Montly S3/R3?", type=input.bool, defval=false)
+CPRAllDays = input(title = "Display CPR All Days", type=input.bool, defval=false)
+PriorDays = input(title = "View Previous CPR", type=input.bool, defval=false)
+
+if year(timenow) == year(time) and month(timenow) == month(time) and dayofmonth(timenow) == dayofmonth(time)
+    isToday := true
+
+//******************DAYWISE CPR & PIVOTS**************************
+// Getting daywise CPR
+DayPivot = security(syminfo.tickerid, "D", pivot[1], barmerge.gaps_off, barmerge.lookahead_on)
+DayBC = security(syminfo.tickerid, "D", BC[1], barmerge.gaps_off, barmerge.lookahead_on)
+DayTC = security(syminfo.tickerid, "D", TC[1], barmerge.gaps_off, barmerge.lookahead_on)
+//Prev day high and low
+prev_high = security(syminfo.tickerid, 'D', high[1],barmerge.gaps_off, barmerge.lookahead_on)
+prev_low = security(syminfo.tickerid, 'D', low[1],barmerge.gaps_off, barmerge.lookahead_on)
+plot(prev_high, title="Prev High", color=color.white,style=plot.style_circles, linewidth=1)
+plot(prev_low,title="Prev low", color=color.green, style=plot.style_circles, linewidth=1)
+
+//Adding linebreaks daywse for CPR
+CPColour = DayPivot != DayPivot[1] ? na : color.fuchsia
+BCColour = DayBC != DayBC[1] ? na : color.blue
+TCColour = DayTC != DayTC[1] ? na : color.blue
+
+//Plotting daywise CPR
+plot(isToday or PriorDays ? DayPivot : na, title = "CP" , color = CPColour, style = plot.style_circles, linewidth =1)
+plot((isToday or PriorDays) and CPRPlot ? DayBC : na , title = "BC" , color = BCColour, style = plot.style_circles, linewidth =1)
+plot((isToday or PriorDays) and CPRPlot ? DayTC : na , title = "TC" , color = TCColour, style = plot.style_circles, linewidth =1)
+
+// Getting daywise Support levels
+DayS1 = security(syminfo.tickerid, "D", S1[1], barmerge.gaps_off, barmerge.lookahead_on)
+DayS2 = security(syminfo.tickerid, "D", S2[1], barmerge.gaps_off, barmerge.lookahead_on)
+DayS3 = security(syminfo.tickerid, "D", S3[1], barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for daywise Support levels 
+DayS1Color =DayS1 != DayS1[1] ? na : color.orange
+DayS2Color =DayS2 != DayS2[1] ? na : color.orange
+DayS3Color =DayS3 != DayS3[1] ? na : color.orange
+
+//Plotting daywise Support levels
+plot(DayS1R1 ? DayS1 : na, title = "D-S1" , color = DayS1Color, style = plot.style_line, linewidth =2)
+plot(DayS2R2 ? DayS2 : na, title = "D-S2" , color = DayS2Color, style = plot.style_line, linewidth =2)
+plot(DayS3R3 ? DayS3 : na, title = "D-S3" , color = DayS3Color, style = plot.style_line, linewidth =2)
+
+// Getting daywise Resistance levels
+DayR1 = security(syminfo.tickerid, "D", R1[1], barmerge.gaps_off, barmerge.lookahead_on)
+DayR2 = security(syminfo.tickerid, "D", R2[1], barmerge.gaps_off, barmerge.lookahead_on)
+DayR3 = security(syminfo.tickerid, "D", R3[1], barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for daywise Support levels
+DayR1Color =DayR1 != DayR1[1] ? na : color.orange
+DayR2Color =DayR2 != DayR2[1] ? na : color.orange
+DayR3Color =DayR3 != DayR3[1] ? na : color.orange
+
+//Plotting daywise Resistance levels
+plot(DayS1R1 ? DayR1 : na, title = "D-R1" , color = DayR1Color, style = plot.style_line, linewidth =1)
+plot(DayS2R2 ? DayR2 : na, title = "D-R2" , color = DayR2Color, style = plot.style_line, linewidth =1)
+plot(DayS3R3 ? DayR3 : na, title = "D-R3" , color = DayR3Color, style = plot.style_line, linewidth =1)
+
+//******************WEEKLY PIVOTS**************************
+
+// Getting Weely Pivot
+WPivot = security(syminfo.tickerid, "W", pivot[1], barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for Weely Pivot 
+WeeklyPivotColor =WPivot != WPivot[1] ? na : color.orange
+
+//Plotting Weely Pivot
+plot(WeeklyPivotInclude ? WPivot:na, title = "W-P" , color = WeeklyPivotColor, style = plot.style_circles, linewidth =1)
+
+
+// Getting Weely Support levels
+WS1 = security(syminfo.tickerid, "W", S1[1],barmerge.gaps_off, barmerge.lookahead_on)
+WS2 = security(syminfo.tickerid, "W", S2[1],barmerge.gaps_off, barmerge.lookahead_on)
+WS3 = security(syminfo.tickerid, "W", S3[1],barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for weekly Support levels
+WS1Color =WS1 != WS1[1] ? na : color.green
+WS2Color =WS2 != WS2[1] ? na : color.green
+WS3Color =WS3 != WS3[1] ? na : color.green
+
+//Plotting Weely Support levels
+plot(WeeklyS1R1 ? WS1 : na, title = "W-S1" , color = WS1Color, style = plot.style_cross, linewidth =1)
+plot(WeeklyS2R2 ? WS2 : na, title = "W-S2" , color = WS2Color, style = plot.style_cross, linewidth =1)
+plot(WeeklyS3R3 ? WS3 : na, title = "W-S3" , color = WS3Color, style = plot.style_cross, linewidth =1)
+
+// Getting Weely Resistance levels
+WR1 = security(syminfo.tickerid, "W", R1[1], barmerge.gaps_off, barmerge.lookahead_on)
+WR2 = security(syminfo.tickerid, "W", R2[1], barmerge.gaps_off, barmerge.lookahead_on)
+WR3 = security(syminfo.tickerid, "W", R3[1], barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for weekly Resistance levels
+WR1Color = WR1 != WR1[1] ? na : color.red
+WR2Color = WR2 != WR2[1] ? na : color.red
+WR3Color = WR3 != WR3[1] ? na : color.red
+
+//Plotting Weely Resistance levels
+plot(WeeklyS1R1 ? WR1 : na , title = "W-R1" , color = WR1Color, style = plot.style_cross, linewidth =1)
+plot(WeeklyS2R2 ? WR2 : na , title = "W-R2" , color = WR2Color, style = plot.style_cross, linewidth =1)
+plot(WeeklyS3R3 ? WR3 : na , title = "W-R3" , color = WR3Color, style = plot.style_cross, linewidth =1)
+
+//******************MONTHLY PIVOTS**************************
+
+// Getting Monhly Pivot
+MPivot = security(syminfo.tickerid, "M", pivot[1],barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for Monthly Support levels 
+MonthlyPivotColor =MPivot != MPivot[1] ? na : color.blue
+
+//Plotting  Monhly Pivot
+plot(MonthlyPivotInclude? MPivot:na, title = " M-P" , color = MonthlyPivotColor, style = plot.style_line, linewidth =1)
+
+// Getting  Monhly Support levels
+MS1 = security(syminfo.tickerid, "M", S1[1],barmerge.gaps_off, barmerge.lookahead_on)
+MS2 = security(syminfo.tickerid, "M", S2[1],barmerge.gaps_off, barmerge.lookahead_on)
+MS3 = security(syminfo.tickerid, "M", S3[1],barmerge.gaps_off, barmerge.lookahead_on)
+
+//Adding linebreaks for Montly Support levels
+MS1Color =MS1 != MS1[1] ? na : color.green
+MS2Color =MS2 != MS2[1] ? na : color.green
+MS3Color =MS3 != MS3[1] ? na : color.green
+
+//Plotting  Monhly Support levels
+plot(MonthlyS1R1 ? MS1 : na, title = "M-S1" , color = MS1Color, style = plot.style_circles, linewidth =1)
+plot(MonthlyS2R2 ? MS2 : na, title = "M-S2" , color = MS2Color, style = plot.style_circles, linewidth =1)
+plot(MonthlyS3R3 ? MS3 : na, title = "M-S3" , color = MS3Color, style = plot.style_circles, linewidth =1)
+
+// Getting  Monhly Resistance levels
+MR1 = security(syminfo.tickerid, "M", R1[1],barmerge.gaps_off, barmerge.lookahead_on)
+MR2 = security(syminfo.tickerid, "M", R2[1],barmerge.gaps_off, barmerge.lookahead_on)
+MR3 = security(syminfo.tickerid, "M", R3[1],barmerge.gaps_off, barmerge.lookahead_on)
+
+MR1Color =MR1 != MR1[1] ? na : color.red
+MR2Color =MR2 != MR2[1] ? na : color.red
+MR3Color =MR3 != MR3[1] ? na : color.red
+
+//Plotting  Monhly Resistance levels
+plot(MonthlyS1R1 ? MR1 : na , title = "M-R1", color = MR1Color, style = plot.style_circles , linewidth =1)
+plot(MonthlyS2R2 ? MR2 : na , title = "M-R2" , color = MR2Color, style = plot.style_circles, linewidth =1)
+plot(MonthlyS3R3 ? MR3 : na, title = "M-R3" , color = MR3Color, style = plot.style_circles, linewidth =1)
